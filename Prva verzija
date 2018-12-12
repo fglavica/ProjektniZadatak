@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+int data;
+struct node* next;
+}node;
+
+int init(struct node **head, int data) //inicijalizacija
+{
+	*head = malloc(sizeof(struct node));
+	if (!*head) {
+		printf("Neuspjela inicijalizacija \n");
+		return 1;
+	}
+
+	(*head)->data = data;
+	(*head)->next = NULL;
+
+	return 0;
+}
+
+int insert(struct node **head, int data)
+{
+	struct node *current = *head;
+	struct node *tmp;
+
+	do {
+		tmp = current;
+		current = current->next;
+	} while (current);
+
+	/* Kreaira novi node poslije tmp */
+	struct node *new = malloc(sizeof(struct node));
+	if (!new) {
+		printf("Failed to insert a new element\n");
+		return 1;
+	}
+	new->next = NULL;
+	new->data = data;
+
+	tmp->next = new;
+
+	return 0;
+
+}
+
+
+void delete(struct node **head, int data)
+{
+	struct node *current = *head;
+	struct node *prev = NULL;
+
+	do {
+		if (current->data == data) {
+			break;
+		}
+		prev = current;
+		current = current->next;
+	} while (current);
+
+	/* ako je pprvi element */
+	if (current == *head) {
+		/* ponovno upotrijebi prev */
+		prev = *head;
+		*head = current->next;
+		free(prev);
+		return;
+	}
+
+	/* ako je zadnji element */
+	if (current->next == NULL) {
+		prev->next = NULL;
+		free(current);
+		return;
+	}
+
+	prev->next = current->next;
+	free(current);
+	return;
+}
+
+void print(struct node **head)
+{
+	struct node *current = *head;
+	while (current) {
+		printf("current data: %d, address: %p\n", current->data,
+		       current);
+		current = current->next;
+	}
+}
+
+
+int main(void)
+{
+	struct node *head;
+	if (init(&head, 25) != 0) {
+		printf("Failed to init a new linked list");
+		return EXIT_FAILURE;
+	}
+
+	insert(&head, 30);
+
+	insert(&head, 55);
+	insert(&head, 210);
+	insert(&head, 1000000);
+
+	puts("Print the linked list:");
+	print(&head);
+	puts("\nDelete first element.");
+	delete(&head, 25);
+	puts("Print the linked list:");
+	print(&head);
+
+	puts("\nDelete last element.");
+	delete(&head, 1000000);
+	puts("Print the linked list:");
+	print(&head);
+
+	puts("\nDelete middle element.");
+	delete(&head, 55);
+	puts("Print the linked list:");
+	print(&head);
+
+	puts("\nAdd more elements.");
+	insert(&head, 1);
+	insert(&head, 2);
+	insert(&head, 3);
+	puts("Print the linked list:");
+	print(&head);
+
+
+	return EXIT_SUCCESS;
+}
